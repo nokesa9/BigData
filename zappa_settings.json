@@ -2,7 +2,6 @@
     "dev": {
         "app_function": "lambda.f",
         "aws_region": "us-east-1",
-        "profile_name": "default",
         "project_name": "git",
         "runtime": "python3.10",
         "s3_bucket": "zappa-y5hx4x1u9",
