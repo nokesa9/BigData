@@ -1,20 +1,20 @@
 {
     "dev": {
-        "app_function": "Lambda.lambda_handler",
+        "app_function": "lambda.f",
         "aws_region": "us-east-1",
-        "project_name": "BigData",
-        "runtime": "python3.8",
-        "s3_bucket": "zappa-jo5cyoftv",
+        "profile_name": "default",
+        "project_name": "git",
+        "runtime": "python3.10",
+        "s3_bucket": "zappa-y5hx4x1u9",
+        "keep_warm": false,
         "apigateway_enabled": false,
         "manage_roles": false,
-        "role_name": "robomaker_students",
-        "keep_warm": false,
         "role_name": "LabRole",
         "events": [
             {
-                "function": "Lambda2.py",
-                "expression": "cron(07 4 * * ? *)"  // Ejecutar todos los días a las 8:00 UTC
+                "function": "lambda.f",
+                "expression": "cron(59 4 * * ? *)"  
             }
-        ] 
+        ]
     }
 }
