@@ -51,4 +51,25 @@ jobs:
           pip install -r requirements.txt
           zappa update dev  # Ajusta al entorno que estás usando en Zappa
           zappa invoke lambda.f
+      - name: Install pytest
+        run: pytest
+
+      - name: flake8
+        run: flake8 --exclude=env
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+                aws-region: us-east-1
+
+      - name: bucket ls
+        run: aws s3 ls
+
+      - name: Upload files to S3
+        run: |
+          aws s3 cp utils.py s3://deploygit/datos/
+          aws s3 cp test_utils.py s3://deploygit/datos/
       
