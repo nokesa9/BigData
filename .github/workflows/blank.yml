@@ -24,13 +24,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10.12'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
+
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo Hello, world!
@@ -42,26 +36,49 @@ jobs:
           echo test, and deploy your project.
       - name: List current directory
         run: ls
-      - name: Deploy with Zappa
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.12'
+      - name: Install dependencies
+        run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - name: Flake8
+        run: |
+              autopep8 --in-place --aggressive --aggressive test_extract_data.py lambda.py extract_data.py 
+              flake8 --exclude env
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
+          aws-region: us-east-1
+      - name: List buckets
+        run: aws s3 ls
+      - name: subir archivos
+        run: aws s3 cp . s3://bigdata02024/Code --recursive
+ 
+      - name: Parcial
         run: |
           python -m venv env
           source env/bin/activate
           pip install urllib3==1.26.7
           pip install zappa
-          pip install -r requirements.txt
-          zappa update dev  # Ajusta al entorno que estás usando en Zappa
-          zappa invoke lambda.f
-      - name: Install pytest
-        run: pytest
+          pip freeze > requirements.txt
 
-      - name: flake8
-        run: flake8 --exclude=env
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-            aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-            aws-session-token: ${{secrets.AWS_SESSION_TOKEN}}
-            aws-region: us-east-1
+          flake8 extract_data.py
+      - name: Pruebas Unitarias Pytest
+        run: |
+          pytest test_extract_data.py
+          python3 -v
+      - name: Despliegue de funciones con Zappa
+        run: |
+          source env/bin/activate
+          pwd
+          zappa update dev
+          zappa update dev2
+          zappa invoke dev lambda.f
      
