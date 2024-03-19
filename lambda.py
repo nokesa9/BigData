@@ -1,39 +1,35 @@
+import requests
 import boto3
-import urllib.request
 from datetime import datetime
 
-from urllib.error import URLError
-
-s3 = boto3.client('s3')
 
 def f(event, context):
-    # Obtén la fecha actual
-    now = datetime.now()
-    date_string = now.strftime("%Y-%m-%d")
-    
-    url = 'https://www.eltiempo.com/'
-    
-    try:
-        # Descargar la página del tiempo
-        response = urllib.request.urlopen(url)
-        data = response.read()
+    s3 = boto3.client('s3')
+    bucket_name = 'parcial10'
 
-        # Subir el archivo a S3
-        s3.put_object(Body=data, Bucket='zappa-72939e7na', Key=f'{date_string}.html')
-        
-        return {
-            'statusCode': 200,
-            'body': f'Archivo {date_string}.html subido exitosamente a S3'
-        }
-    except URLError as e:
-        return {
-            'statusCode': 500,
-            'body': f'Error al conectarse a la URL: {str(e)}'
-        }
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': f'Error al procesar la solicitud: {str(e)}'
-        }
-    finally:
-        pass
+    for page_number in range(1, 6):
+        if page_number == 1:
+            url = (
+                'https://casas.mitula.com.co/searchRE/'
+                'nivel1-Cundinamarca/nivel2-Bogot%C3%A1/'
+                'orden-0/'
+                'q-bogot%C3%A1?req_sgmt=REVTS1RPUDtVU0VSX1NFQVJDSDtTRVJQOw==')
+        else:
+            url = ('https://casas.mitula.com.co/searchRE/'
+                   'nivel1-Cundinamarca/nivel2-Bogot%C3%A1/'
+                   f'orden-0/q-bogot%C3%A1/pag-{page_number}?'
+                   'req_sgmt=REVTS1RPUDtVU0VSX1NFQVJDSDtTRVJQOw==')
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            file_key = f'casas/contenido-pag-{page_number}-{current_date}.html'
+            s3.put_object(
+                Body=response.content,
+                Bucket=bucket_name,
+                Key=file_key)
+
+    return {
+        'statusCode': 200,
+        'body': 'Páginas descargadas y guardadas en S3 correctamente.'
+    }
