@@ -29,7 +29,7 @@ def extract_data(html_content):
             bedrooms = 'No disponible'
         adicional = prop.find('span', class_='facility-item__text')
         if adicional:
-            adicional_text = adicional.text.strip() 
+            adicional_text = adicional.text.strip()
         else:
             adicional_text = 'No disponible'
         data.append([price, area, bedrooms, adicional_text])
