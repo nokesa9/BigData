@@ -1,12 +1,11 @@
 import unittest
 from unittest.mock import Mock, patch
-from extract_data import handler, extract_data  
+from extract_data import handler, extract_data
 
 
 class TestLambdaHandlerProcessing(unittest.TestCase):
     @patch('extract_data.boto3.client')
     @patch('extract_data.boto3.resource')
-    
     def test_lambda_handler_processing(
             self, mock_boto3_resource, mock_boto3_client):
         # Simulate the behavior of boto3
@@ -25,8 +24,7 @@ class TestLambdaHandlerProcessing(unittest.TestCase):
         # Verify calls and behavior
         self.assertEqual(result['statusCode'], 200)
         # Add more assertions as necessary
-    
-    
+
     def test_extract_data(self):
         # HTML Content with known data
         html_content = """
